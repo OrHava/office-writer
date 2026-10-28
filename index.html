@@ -109,6 +109,46 @@ dialog .actions .primary{background:var(--accent);color:var(--accent-ink);paddin
   mark.find{background:none;color:inherit}
 }
 @page{size:A4;margin:25mm}
+.page{position:relative}
+.page .guide{position:absolute;left:0;right:0;pointer-events:none;border-top:2px dashed #c3c8d2;z-index:1}
+.page .guide::after{content:attr(data-n);position:absolute;right:8px;top:-18px;font:11px var(--ui);color:#9aa1ad}
+.hf{position:absolute;left:96px;right:96px;font:10pt var(--ui);color:#6b7280;min-height:16px;outline:none;z-index:2}
+.hf:empty::before{content:attr(placeholder);color:#c3c8d2}
+#hdr{top:40px}#ftr{bottom:40px}
+.page.cols2 > :not(.hf):not(.guide){column-count:2;column-gap:28px}
+.page .cols-wrap{column-gap:28px}
+.page span.cmt{background:#fff1a8;border-bottom:2px solid #e3b900;cursor:pointer}
+:root[data-theme="dark"] .page span.cmt{background:#5a4a00}
+.page span.cmt.active{background:#ffd54a}
+.page .fn{vertical-align:super;font-size:70%;color:var(--accent)}
+.page .footnotes{border-top:1px solid #9aa1ad;margin-top:24pt;padding-top:6pt;font-size:9pt}
+.page .toc p{margin:0 0 2pt}.page .toc .l2{padding-left:16pt}.page .toc .l3{padding-left:32pt}
+.page .cap{display:inline-block;margin:0 0 10pt}
+.page img.sel{outline:3px solid var(--accent)}
+.page .dropcap::first-letter{float:left;font-size:3.2em;line-height:.85;padding:4pt 6pt 0 0;font-weight:600}
+.page input[type=checkbox]{margin-right:6px}
+.imgbar{position:absolute;display:none;background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.14);padding:4px;gap:2px;z-index:30}
+.imgbar.show{display:flex}
+.imgbar button{font-size:12px;padding:4px 8px}
+aside .tabs{display:flex;border-bottom:1px solid var(--line)}
+aside .tabs button{flex:1;border-radius:0;padding:9px;font-size:13px;color:var(--muted)}
+aside .tabs button.on{color:var(--ink);box-shadow:inset 0 -2px var(--accent);background:none}
+aside .pane{display:none;overflow:auto;flex:1}aside .pane.on{display:block}
+.ol-item{padding:6px 14px;cursor:pointer;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ol-item:hover{background:var(--hover)}.ol-item.l2{padding-left:26px}.ol-item.l3{padding-left:38px;color:var(--muted)}
+.cm-item{padding:10px 14px;border-bottom:1px solid var(--line);font-size:13px}
+.cm-item q{color:var(--muted);display:block;font-size:12px;margin-bottom:4px;font-style:italic}
+.cm-item .cm-a{display:flex;gap:6px;margin-top:6px}.cm-item .cm-a button{font-size:12px;padding:3px 7px;color:var(--muted)}
+.ver{padding:8px 14px;border-bottom:1px solid var(--line);font-size:13px;display:flex;justify-content:space-between;align-items:center}
+.ver button{font-size:12px;color:var(--accent)}
+.empty{padding:16px 14px;color:var(--muted);font-size:13px}
+.tpl{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.tpl button{border:1px solid var(--line);padding:14px 10px;text-align:left;border-radius:8px}
+.tpl button b{display:block;margin-bottom:3px}.tpl button span{font-size:12px;color:var(--muted)}
+.emo{display:grid;grid-template-columns:repeat(9,1fr);gap:2px;max-height:260px;overflow:auto}
+.emo button{font-size:20px;padding:4px}
+.sc{display:grid;grid-template-columns:1fr auto;gap:4px 18px;font-size:13px}.sc kbd{color:var(--muted)}
+@media print{.hf{position:fixed}#hdr{top:0}#ftr{bottom:0}.guide,.imgbar{display:none!important}.page span.cmt{background:none;border:0}}
 </style>
 </head>
 <body>
@@ -124,6 +164,9 @@ dialog .actions .primary{background:var(--accent);color:var(--accent-ink);paddin
     <li><button data-cmd="export-md">Download as Markdown</button></li>
     <li><button data-cmd="export-txt">Download as plain text</button></li>
     <li><button data-cmd="print">Print / Save as PDF <kbd>Ctrl+P</kbd></button></li>
+    <li class="sep"></li>
+    <li><button data-cmd="pagesetup">Page setup…</button></li>
+    <li><button data-cmd="stats">Document statistics</button></li>
     <li class="sep"></li>
     <li><button data-cmd="rename">Rename</button></li>
     <li><button data-cmd="duplicate">Duplicate</button></li>
@@ -145,6 +188,33 @@ dialog .actions .primary{background:var(--accent);color:var(--accent-ink);paddin
     <li><button data-cmd="pagebreak">Page break</button></li>
     <li><button data-cmd="date">Current date</button></li>
     <li><button data-cmd="special">Special character…</button></li>
+    <li><button data-cmd="emoji">Emoji…</button></li>
+    <li><button data-cmd="checkbox">Checkbox</button></li>
+    <li class="sep"></li>
+    <li><button data-cmd="toc">Table of contents</button></li>
+    <li><button data-cmd="footnote">Footnote</button></li>
+    <li><button data-cmd="comment">Comment <kbd>Ctrl+Alt+M</kbd></button></li>
+    <li><button data-cmd="headerfooter">Header &amp; footer</button></li>
+  </ul></div>
+  <div class="menu" id="m-format"><button>Format</button><ul>
+    <li><button data-cmd="case-upper">UPPERCASE</button></li>
+    <li><button data-cmd="case-lower">lowercase</button></li>
+    <li><button data-cmd="case-title">Title Case</button></li>
+    <li><button data-cmd="case-sentence">Sentence case</button></li>
+    <li class="sep"></li>
+    <li><button data-cmd="bul-disc">Bullets: ●</button></li>
+    <li><button data-cmd="bul-circle">Bullets: ○</button></li>
+    <li><button data-cmd="bul-square">Bullets: ■</button></li>
+    <li><button data-cmd="num-decimal">Numbers: 1. 2. 3.</button></li>
+    <li><button data-cmd="num-alpha">Numbers: a. b. c.</button></li>
+    <li><button data-cmd="num-roman">Numbers: i. ii. iii.</button></li>
+    <li class="sep"></li>
+    <li><button data-cmd="cols-1">Single column</button></li>
+    <li><button data-cmd="cols-2">Two columns</button></li>
+    <li><button data-cmd="dropcap">Drop cap</button></li>
+    <li><button data-cmd="para-dir">Paragraph direction RTL/LTR</button></li>
+    <li><button data-cmd="spacing">Paragraph spacing…</button></li>
+    <li><button data-cmd="letterspacing">Letter spacing…</button></li>
   </ul></div>
   <div class="menu" id="m-view"><button>View</button><ul>
     <li><button data-cmd="sidebar">Toggle documents panel</button></li>
@@ -152,6 +222,8 @@ dialog .actions .primary{background:var(--accent);color:var(--accent-ink);paddin
     <li><button data-cmd="spell">Toggle spellcheck</button></li>
     <li><button data-cmd="dir">Toggle text direction (RTL/LTR)</button></li>
     <li><button data-cmd="focus">Focus mode <kbd>F11</kbd></button></li>
+    <li><button data-cmd="guides">Toggle page-break guides</button></li>
+    <li><button data-cmd="shortcuts">Keyboard shortcuts</button></li>
   </ul></div>
   <div class="status"><span id="words">0 words</span><span id="saved">Saved</span></div>
 </header>
@@ -228,11 +300,15 @@ dialog .actions .primary{background:var(--accent);color:var(--accent-ink);paddin
 <main>
   <aside id="side">
     <button class="new" data-cmd="new">New document</button>
-    <h2>Your documents</h2>
-    <div class="list" id="doclist"></div>
+    <div class="tabs"><button class="on" data-tab="docs">Documents</button><button data-tab="outline">Outline</button><button data-tab="comments">Comments</button><button data-tab="history">History</button></div>
+    <div class="pane on list" id="doclist" data-pane="docs"></div>
+    <div class="pane" id="outline" data-pane="outline"></div>
+    <div class="pane" id="cmlist" data-pane="comments"></div>
+    <div class="pane" id="verlist" data-pane="history"></div>
   </aside>
   <div class="canvas" id="canvas">
-    <div class="page" id="page" contenteditable="true" spellcheck="true"></div>
+    <div style="position:relative"><div class="page" id="page" contenteditable="true" spellcheck="true"></div></div>
+    <div class="imgbar" id="imgbar"><button data-img="25">25%</button><button data-img="50">50%</button><button data-img="75">75%</button><button data-img="100">100%</button><button data-img="left">Left</button><button data-img="center">Center</button><button data-img="right">Right</button><button data-img="wrapL">Wrap ◧</button><button data-img="wrapR">Wrap ◨</button><button data-img="caption">Caption</button><button data-img="del">Delete</button></div>
   </div>
 </main>
 
@@ -240,6 +316,13 @@ dialog .actions .primary{background:var(--accent);color:var(--accent-ink);paddin
 <dialog id="dlg-table"><h3>Insert table</h3><div class="row"><div style="flex:1"><label>Rows</label><input type="number" id="tb-r" value="3" min="1" max="50"></div><div style="flex:1"><label>Columns</label><input type="number" id="tb-c" value="3" min="1" max="20"></div></div><label><input type="checkbox" id="tb-h" checked style="width:auto"> Header row</label><div class="actions"><button data-close>Cancel</button><button class="primary" id="tb-ok">Insert</button></div></dialog>
 <dialog id="dlg-rename"><h3>Rename document</h3><input id="rn-name"><div class="actions"><button data-close>Cancel</button><button class="primary" id="rn-ok">Rename</button></div></dialog>
 <dialog id="dlg-special"><h3>Special characters</h3><div id="spchars" style="display:grid;grid-template-columns:repeat(8,1fr);gap:4px"></div><div class="actions"><button data-close>Close</button></div></dialog>
+<dialog id="dlg-page"><h3>Page setup</h3><div class="row"><div style="flex:1"><label>Size</label><select id="ps-size"><option value="a4">A4</option><option value="letter">Letter</option><option value="legal">Legal</option></select></div><div style="flex:1"><label>Orientation</label><select id="ps-orient"><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select></div></div><label>Margins (mm)</label><div class="row"><input type="number" id="ps-top" placeholder="Top" value="25"><input type="number" id="ps-right" placeholder="Right" value="25"><input type="number" id="ps-bottom" placeholder="Bottom" value="25"><input type="number" id="ps-left" placeholder="Left" value="25"></div><div class="actions"><button data-close>Cancel</button><button class="primary" id="ps-ok">Apply</button></div></dialog>
+<dialog id="dlg-stats"><h3>Document statistics</h3><div id="statsBody" class="sc"></div><div class="actions"><button data-close>Close</button></div></dialog>
+<dialog id="dlg-shortcuts"><h3>Keyboard shortcuts</h3><div class="sc" id="scBody"></div><div class="actions"><button data-close>Close</button></div></dialog>
+<dialog id="dlg-tpl"><h3>New document</h3><div class="tpl" id="tplBody"></div><div class="actions"><button data-close>Cancel</button></div></dialog>
+<dialog id="dlg-emoji"><h3>Emoji</h3><div class="emo" id="emoBody"></div><div class="actions"><button data-close>Close</button></div></dialog>
+<dialog id="dlg-comment"><h3>Add comment</h3><input id="cm-text" placeholder="Write a comment"><div class="actions"><button data-close>Cancel</button><button class="primary" id="cm-ok">Comment</button></div></dialog>
+<dialog id="dlg-spacing"><h3>Paragraph spacing</h3><label>Space before (pt)</label><input type="number" id="sp-b" value="0"><label>Space after (pt)</label><input type="number" id="sp-a" value="10"><label>First-line indent (pt)</label><input type="number" id="sp-i" value="0"><div class="actions"><button data-close>Cancel</button><button class="primary" id="sp-ok">Apply</button></div></dialog>
 <input type="file" id="fileIn" accept=".docx,.html,.htm,.md,.txt" hidden>
 <input type="file" id="imgIn" accept="image/*" hidden>
 <div class="toast" id="toast"></div>
@@ -250,14 +333,14 @@ const DB='writer.docs', page=document.getElementById('page'), titleEl=document.g
 let docs=JSON.parse(localStorage.getItem(DB)||'[]'), cur=null, saveT=null, savedRange=null;
 const uid=()=>Math.random().toString(36).slice(2,10);
 function persist(){localStorage.setItem(DB,JSON.stringify(docs));}
-function newDoc(html='<p><br></p>',name='Untitled document'){const d={id:uid(),name,html,dir:'ltr',updated:Date.now()};docs.unshift(d);persist();load(d.id);return d;}
+function newDoc(html='<p><br></p>',name='Untitled document'){const d={id:uid(),name,html,dir:'ltr',updated:Date.now(),hdr:'',ftr:'',pageSetup:null,comments:[],versions:[]};docs.unshift(d);persist();load(d.id);return d;}
 function load(id){
   cur=docs.find(d=>d.id===id); if(!cur)return;
   page.innerHTML=cur.html; titleEl.value=cur.name; page.dir=cur.dir||'ltr';
   document.getElementById('dirbtn').classList.toggle('on',page.dir==='rtl');
-  localStorage.setItem('writer.last',id); renderList(); countWords(); setSaved(true);
+  localStorage.setItem('writer.last',id); renderList(); countWords(); setSaved(true); if(typeof afterLoad==='function')afterLoad();
 }
-function save(){ if(!cur)return; cur.html=page.innerHTML; cur.name=titleEl.value||'Untitled document'; cur.dir=page.dir; cur.updated=Date.now(); persist(); renderList(); setSaved(true); }
+function save(){ if(!cur)return; beforeSave(); cur.html=cleanHtml(); cur.name=titleEl.value||'Untitled document'; cur.dir=page.dir; cur.updated=Date.now(); persist(); renderList(); setSaved(true); }
 function scheduleSave(){ setSaved(false); clearTimeout(saveT); saveT=setTimeout(save,600); }
 function setSaved(b){document.getElementById('saved').textContent=b?'Saved':'Saving…';}
 function renderList(){
@@ -481,7 +564,8 @@ async function exportDocx(){
     if(el.nodeType===3){return el.data.trim()?`<w:p>${run(el.data,st)}</w:p>`:'';}
     if(el.nodeType===1)return `<w:p>${await runs(el,styleOf(el,st))}</w:p>`;return '';
   }
-  const base={size:12,font:'Source Serif 4',rtl:page.dir==='rtl'};let body='';for(const n of page.childNodes)body+=await block(n,base);
+  const base={size:12,font:'Source Serif 4',rtl:page.dir==='rtl'};let body='';for(const n of page.childNodes){if(n.classList&&n.classList.contains('guide'))continue;body+=await block(n,base);}
+  if(hdr.innerText.trim())body=`<w:p><w:pPr><w:jc w:val="center"/></w:pPr>${run(hdr.innerText,{...base,size:9,color:'6B7280'})}</w:p>`+body;if(ftr.innerText.trim())body+=`<w:p><w:pPr><w:jc w:val="center"/></w:pPr>${run(ftr.innerText,{...base,size:9,color:'6B7280'})}</w:p>`;
   const W='xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"';
   zip.file('[Content_Types].xml',`<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Default Extension="jpg" ContentType="image/jpeg"/><Default Extension="jpeg" ContentType="image/jpeg"/><Default Extension="gif" ContentType="image/gif"/><Default Extension="webp" ContentType="image/webp"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/numbering.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/></Types>`);
   zip.file('_rels/.rels',`<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`);
@@ -499,10 +583,122 @@ async function exportDocx(){
 
 /* ---------- init ---------- */
 document.documentElement.dataset.theme=localStorage.getItem('writer.theme')||'';
+window.addEventListener('load',()=>{});
 if(!docs.length)newDoc('<h1>Welcome to Writer</h1><p>Everything you type is saved automatically in this browser. Use <b>File → Download as Word</b> to get a .docx, or <b>File → Open</b> to import one.</p><p>Shortcuts: <b>Ctrl+B</b> bold, <b>Ctrl+I</b> italic, <b>Ctrl+K</b> link, <b>Ctrl+H</b> find and replace, <b>Ctrl+P</b> print or save as PDF.</p>','Welcome');
 else load(localStorage.getItem('writer.last')||docs[0].id);
 renderList();
 if(matchMedia('(max-width:900px)').matches)document.getElementById('side').classList.add('hidden');
+</script>
+
+<script>
+/* ================= Writer v2 features ================= */
+const hdr=document.createElement('div'),ftr=document.createElement('div');
+hdr.id='hdr';ftr.id='ftr';hdr.className=ftr.className='hf';hdr.contentEditable=ftr.contentEditable='true';
+hdr.setAttribute('placeholder','Header');ftr.setAttribute('placeholder','Footer');
+hdr.style.display=ftr.style.display='none';
+page.parentNode.append(hdr,ftr);
+[hdr,ftr].forEach(h=>h.addEventListener('input',scheduleSave));
+const PAGES={a4:[210,297],letter:[216,279],legal:[216,356]};
+function applyPageSetup(ps){
+  ps=ps||{size:'a4',orient:'portrait',m:[25,25,25,25]};let [w,h]=PAGES[ps.size]||PAGES.a4;if(ps.orient==='landscape')[w,h]=[h,w];
+  const mm=96/25.4;page.style.width=w*mm+'px';page.style.minHeight=h*mm+'px';page.style.padding=ps.m.map(v=>v*mm+'px').join(' ');
+  hdr.style.left=ftr.style.left=ps.m[3]*mm+'px';hdr.style.right=ftr.style.right=ps.m[1]*mm+'px';hdr.style.top=Math.max(8,ps.m[0]*mm-36)+'px';ftr.style.bottom=Math.max(8,ps.m[2]*mm-36)+'px';
+  let st=document.getElementById('pagecss');if(!st){st=document.createElement('style');st.id='pagecss';document.head.appendChild(st);}
+  st.textContent=`@page{size:${ps.size.toUpperCase()} ${ps.orient};margin:${ps.m.map(v=>v+'mm').join(' ')}}`;
+  page.dataset.ph=h*mm;page.dataset.mt=ps.m[0]*mm;page.dataset.mb=ps.m[2]*mm;drawGuides();
+}
+function afterLoad(){
+  cur.comments=cur.comments||[];cur.versions=cur.versions||[];
+  hdr.innerHTML=cur.hdr||'';ftr.innerHTML=cur.ftr||'';const show=!!(cur.hdr||cur.ftr);hdr.style.display=ftr.style.display=show?'':'none';
+  applyPageSetup(cur.pageSetup);renderOutline();renderComments();renderVersions();
+}
+function beforeSave(){
+  cur.hdr=hdr.innerHTML.replace(/<br>$/,'');cur.ftr=ftr.innerHTML.replace(/<br>$/,'');
+  const last=cur.versions.at(-1);const txt=page.innerText;
+  if(!last||Date.now()-last.t>5*60*1000&&last.html!==page.innerHTML){cur.versions.push({t:Date.now(),html:page.innerHTML,words:txt.trim()?txt.trim().split(/\s+/).length:0});if(cur.versions.length>25)cur.versions.shift();renderVersions();}
+}
+/* page guides */
+let guidesOn=localStorage.getItem('writer.guides')!=='0';
+function drawGuides(){
+  page.querySelectorAll('.guide').forEach(g=>g.remove());if(!guidesOn)return;
+  const ph=+page.dataset.ph||1123,mt=+page.dataset.mt||94,mb=+page.dataset.mb||94;const body=ph-mt-mb;const content=page.scrollHeight-mt-mb;const n=Math.ceil(content/body);
+  for(let i=1;i<n;i++){const g=document.createElement('div');g.className='guide';g.contentEditable='false';g.dataset.n='Page '+(i+1);g.style.top=(mt+i*body)+'px';page.appendChild(g);}
+}
+let gT;page.addEventListener('input',()=>{clearTimeout(gT);gT=setTimeout(()=>{drawGuides();renderOutline();},400);});
+/* sidebar tabs */
+document.querySelectorAll('aside .tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('aside .tabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('aside .pane').forEach(p=>p.classList.toggle('on',p.dataset.pane===b.dataset.tab));});
+function renderOutline(){const o=document.getElementById('outline');const hs=[...page.querySelectorAll('h1,h2,h3')];o.innerHTML=hs.length?'':'<div class="empty">Headings you add will appear here for quick navigation.</div>';hs.forEach(h=>{const d=document.createElement('div');d.className='ol-item l'+h.tagName[1];d.textContent=h.textContent||'(empty heading)';d.onclick=()=>h.scrollIntoView({block:'center',behavior:'smooth'});o.appendChild(d);});}
+/* comments */
+function renderComments(){const l=document.getElementById('cmlist');l.innerHTML='';const live=cur.comments.filter(c=>page.querySelector(`[data-cid="${c.id}"]`));if(!live.length){l.innerHTML='<div class="empty">Select text and use Insert → Comment.</div>';return;}
+  live.forEach(c=>{const sp=page.querySelector(`[data-cid="${c.id}"]`);const d=document.createElement('div');d.className='cm-item';d.innerHTML=`<q>${esc(sp.textContent.slice(0,80))}</q>${esc(c.text)}<div class="cm-a"><button data-a="go">Show</button><button data-a="edit">Edit</button><button data-a="resolve">Resolve</button></div>`;
+    d.onclick=e=>{const a=e.target.dataset.a;if(a==='go'){page.querySelectorAll('.cmt.active').forEach(x=>x.classList.remove('active'));sp.classList.add('active');sp.scrollIntoView({block:'center'});}if(a==='edit'){const t=prompt('Edit comment',c.text);if(t!=null){c.text=t;save();renderComments();}}if(a==='resolve'){sp.replaceWith(...sp.childNodes);cur.comments=cur.comments.filter(x=>x!==c);page.normalize();save();renderComments();}};l.appendChild(d);});}
+document.getElementById('cm-ok').onclick=()=>{const t=document.getElementById('cm-text').value.trim();document.getElementById('dlg-comment').close();if(!t)return;restoreSel();const r=getSelection().getRangeAt(0);if(r.collapsed){toast('Select some text first');return;}const id=uid();try{const sp=document.createElement('span');sp.className='cmt';sp.dataset.cid=id;r.surroundContents(sp);}catch(e){document.execCommand('insertHTML',false,`<span class="cmt" data-cid="${id}">${esc(r.toString())}</span>`);}cur.comments.push({id,text:t,t:Date.now()});save();renderComments();document.querySelector('[data-tab="comments"]').click();};
+page.addEventListener('click',e=>{const c=e.target.closest('.cmt');if(c){document.querySelector('[data-tab="comments"]').click();}});
+/* versions */
+function renderVersions(){const l=document.getElementById('verlist');l.innerHTML='';if(!cur.versions.length){l.innerHTML='<div class="empty">Snapshots are taken automatically as you work (every few minutes).</div>';return;}
+  [...cur.versions].reverse().forEach(v=>{const d=document.createElement('div');d.className='ver';d.innerHTML=`<span>${new Date(v.t).toLocaleString()}<br><small style="color:var(--muted)">${v.words} words</small></span><button>Restore</button>`;d.querySelector('button').onclick=()=>{if(confirm('Restore this version? Current text will be saved as a new snapshot.')){cur.versions.push({t:Date.now(),html:page.innerHTML,words:0});page.innerHTML=v.html;save();afterLoad();toast('Version restored');}};l.appendChild(d);});}
+/* templates */
+const TPL={
+ blank:['Blank','Start from an empty page','<p><br></p>'],
+ letter:['Letter','Formal letter layout',`<p style="text-align:right">${new Date().toLocaleDateString()}</p><p>Recipient name<br>Company<br>Address</p><p><br></p><p>Dear Recipient,</p><p>Opening paragraph that states the purpose of the letter.</p><p>Second paragraph with supporting details.</p><p>Closing paragraph with a clear request or next step.</p><p><br></p><p>Sincerely,</p><p><b>Your name</b><br>Title</p>`],
+ resume:['Resume','Clean one-page CV',`<h1>Your Name</h1><p>City · phone · email · linkedin.com/in/you</p><h2>Summary</h2><p>Two or three lines describing what you do and what you are best at.</p><h2>Experience</h2><p><b>Job title</b>, Company — 2022–present</p><ul><li>Achievement with a measurable result</li><li>Responsibility or project you led</li></ul><p><b>Job title</b>, Company — 2019–2022</p><ul><li>Achievement</li></ul><h2>Education</h2><p><b>Degree</b>, University — year</p><h2>Skills</h2><p>Skill, skill, skill, skill</p>`],
+ notes:['Meeting notes','Agenda, decisions, action items',`<h1>Meeting notes</h1><p><b>Date:</b> ${new Date().toLocaleDateString()} &nbsp; <b>Attendees:</b> </p><h2>Agenda</h2><ol><li>Topic</li><li>Topic</li></ol><h2>Discussion</h2><p></p><h2>Decisions</h2><ul><li></li></ul><h2>Action items</h2><table><tr><th>Task</th><th>Owner</th><th>Due</th></tr><tr><td><br></td><td><br></td><td><br></td></tr></table>`],
+ report:['Report','Title page, sections, TOC',`<h1>Report title</h1><p>Author · ${new Date().toLocaleDateString()}</p><h2>1. Introduction</h2><p>Background and goals.</p><h2>2. Method</h2><p>How the work was done.</p><h2>3. Findings</h2><p>Key results.</p><h2>4. Conclusion</h2><p>Summary and recommendations.</p>`],
+ memo:['Memo','Internal memorandum',`<h1>Memorandum</h1><table><tr><td><b>To</b></td><td>Team</td></tr><tr><td><b>From</b></td><td>Your name</td></tr><tr><td><b>Date</b></td><td>${new Date().toLocaleDateString()}</td></tr><tr><td><b>Subject</b></td><td>Subject line</td></tr></table><p>Body of the memo.</p>`],
+};
+const tb=document.getElementById('tplBody');Object.entries(TPL).forEach(([k,[n,d,h]])=>{const b=document.createElement('button');b.innerHTML=`<b>${n}</b><span>${d}</span>`;b.onclick=()=>{document.getElementById('dlg-tpl').close();save();newDoc(h,k==='blank'?'Untitled document':n);};tb.appendChild(b);});
+cmds.new=()=>openDlg('dlg-tpl');
+/* page setup */
+cmds.pagesetup=()=>{const ps=cur.pageSetup||{size:'a4',orient:'portrait',m:[25,25,25,25]};document.getElementById('ps-size').value=ps.size;document.getElementById('ps-orient').value=ps.orient;['top','right','bottom','left'].forEach((k,i)=>document.getElementById('ps-'+k).value=ps.m[i]);openDlg('dlg-page');};
+document.getElementById('ps-ok').onclick=()=>{cur.pageSetup={size:document.getElementById('ps-size').value,orient:document.getElementById('ps-orient').value,m:['top','right','bottom','left'].map(k=>+document.getElementById('ps-'+k).value||0)};document.getElementById('dlg-page').close();applyPageSetup(cur.pageSetup);save();};
+cmds.guides=()=>{guidesOn=!guidesOn;localStorage.setItem('writer.guides',guidesOn?'1':'0');drawGuides();};
+cmds.headerfooter=()=>{const show=hdr.style.display==='none';hdr.style.display=ftr.style.display=show?'':'none';if(show)hdr.focus();};
+/* stats & shortcuts */
+cmds.stats=()=>{const t=page.innerText,w=t.trim()?t.trim().split(/\s+/).length:0;const rows=[['Words',w],['Characters',t.length],['Characters (no spaces)',t.replace(/\s/g,'').length],['Paragraphs',[...page.querySelectorAll('p,h1,h2,h3,li,blockquote')].filter(p=>p.innerText.trim()).length],['Sentences',(t.match(/[.!?](\s|$)/g)||[]).length],['Pages (approx.)',page.querySelectorAll('.guide').length+1],['Reading time',Math.max(1,Math.round(w/220))+' min'],['Images',page.querySelectorAll('img').length],['Tables',page.querySelectorAll('table').length]];document.getElementById('statsBody').innerHTML=rows.map(r=>`<span>${r[0]}</span><b>${r[1]}</b>`).join('');openDlg('dlg-stats');};
+cmds.shortcuts=()=>{const k=[['Bold','Ctrl+B'],['Italic','Ctrl+I'],['Underline','Ctrl+U'],['Save','Ctrl+S'],['Find & replace','Ctrl+H'],['Link','Ctrl+K'],['Comment','Ctrl+Alt+M'],['New document','Ctrl+Alt+N'],['Print / PDF','Ctrl+P'],['Paste plain text','Ctrl+Shift+V'],['Indent / outdent','Tab / Shift+Tab'],['Undo / redo','Ctrl+Z / Ctrl+Y'],['Focus mode','F11'],['Open link','Ctrl+click']];document.getElementById('scBody').innerHTML=k.map(r=>`<span>${r[0]}</span><kbd>${r[1]}</kbd>`).join('');openDlg('dlg-shortcuts');};
+/* format */
+function changeCase(fn){const s=getSelection();if(!s.rangeCount||s.isCollapsed){toast('Select text first');return;}const r=s.getRangeAt(0);const w=document.createTreeWalker(r.commonAncestorContainer,NodeFilter.SHOW_TEXT);const nodes=[];while(w.nextNode())if(r.intersectsNode(w.currentNode))nodes.push(w.currentNode);if(!nodes.length&&r.commonAncestorContainer.nodeType===3)nodes.push(r.commonAncestorContainer);nodes.forEach(n=>{const a=n===r.startContainer?r.startOffset:0,b=n===r.endContainer?r.endOffset:n.data.length;n.data=n.data.slice(0,a)+fn(n.data.slice(a,b))+n.data.slice(b);});scheduleSave();}
+cmds['case-upper']=()=>changeCase(t=>t.toUpperCase());cmds['case-lower']=()=>changeCase(t=>t.toLowerCase());
+cmds['case-title']=()=>changeCase(t=>t.replace(/\p{L}[\p{L}']*/gu,w=>w[0].toUpperCase()+w.slice(1).toLowerCase()));
+cmds['case-sentence']=()=>changeCase(t=>t.toLowerCase().replace(/(^\s*\p{L}|[.!?]\s+\p{L})/gu,m=>m.toUpperCase()));
+function listStyle(tag,style){let l=closestIn('UL')||closestIn('OL');if(!l){ex(tag==='UL'?'insertUnorderedList':'insertOrderedList');l=closestIn('UL')||closestIn('OL');}if(!l)return;if(l.tagName!==tag){const n=document.createElement(tag);n.innerHTML=l.innerHTML;l.replaceWith(n);l=n;}l.style.listStyleType=style;scheduleSave();}
+cmds['bul-disc']=()=>listStyle('UL','disc');cmds['bul-circle']=()=>listStyle('UL','circle');cmds['bul-square']=()=>listStyle('UL','square');
+cmds['num-decimal']=()=>listStyle('OL','decimal');cmds['num-alpha']=()=>listStyle('OL','lower-alpha');cmds['num-roman']=()=>listStyle('OL','lower-roman');
+cmds['cols-1']=()=>{page.style.columnCount='';scheduleSave();};cmds['cols-2']=()=>{page.style.columnCount='2';page.style.columnGap='28px';scheduleSave();};
+function curBlock(){let n=getSelection().anchorNode;while(n&&n!==page&&!(n.nodeType===1&&/^(P|H[1-6]|LI|DIV|BLOCKQUOTE|PRE)$/.test(n.tagName)))n=n.parentNode;return n&&n!==page?n:null;}
+cmds.dropcap=()=>{const b=curBlock();if(b){b.classList.toggle('dropcap');scheduleSave();}};
+cmds['para-dir']=()=>{const b=curBlock();if(b){b.dir=b.dir==='rtl'?'ltr':'rtl';b.style.textAlign=b.dir==='rtl'?'right':'left';scheduleSave();}};
+cmds.spacing=()=>{const b=curBlock();if(!b)return;document.getElementById('sp-b').value=parseFloat(b.style.marginTop)||0;document.getElementById('sp-a').value=b.style.marginBottom?parseFloat(b.style.marginBottom):10;document.getElementById('sp-i').value=parseFloat(b.style.textIndent)||0;openDlg('dlg-spacing');};
+document.getElementById('sp-ok').onclick=()=>{document.getElementById('dlg-spacing').close();const b=curBlock();if(!b)return;b.style.marginTop=document.getElementById('sp-b').value+'pt';b.style.marginBottom=document.getElementById('sp-a').value+'pt';b.style.textIndent=document.getElementById('sp-i').value+'pt';scheduleSave();};
+cmds.letterspacing=()=>{const v=prompt('Letter spacing in px (0 = normal)','0');if(v==null)return;ex('fontSize',7);page.querySelectorAll('font[size="7"]').forEach(f=>{f.removeAttribute('size');f.style.letterSpacing=v+'px';});scheduleSave();};
+/* insert */
+cmds.checkbox=()=>insertHTML('<input type="checkbox"> ');
+cmds.toc=()=>{const hs=[...page.querySelectorAll('h1,h2,h3')].filter(h=>!h.closest('.toc'));if(!hs.length){toast('Add some headings first');return;}hs.forEach((h,i)=>{if(!h.id)h.id='h-'+i+'-'+uid();});const html='<div class="toc" contenteditable="false"><p><b>Contents</b></p>'+hs.map(h=>`<p class="l${h.tagName[1]}"><a href="#${h.id}">${esc(h.textContent)}</a></p>`).join('')+'</div><p><br></p>';insertHTML(html);};
+cmds.footnote=()=>{saveSel();const t=prompt('Footnote text');if(!t)return;let fns=page.querySelector('.footnotes');if(!fns){fns=document.createElement('div');fns.className='footnotes';page.appendChild(fns);}const n=fns.children.length+1;restoreSel();document.execCommand('insertHTML',false,`<sup class="fn">[${n}]</sup>`);const p=document.createElement('p');p.innerHTML=`<sup>${n}</sup> ${esc(t)}`;fns.appendChild(p);scheduleSave();};
+cmds.comment=()=>{saveSel();if(getSelection().isCollapsed){toast('Select the text you want to comment on');return;}document.getElementById('cm-text').value='';openDlg('dlg-comment');};
+const EMO='😀 😁 😂 🤣 😊 😍 😎 🤔 😅 😢 😡 👍 👎 👏 🙏 💪 ❤️ 💙 💚 💛 🔥 ⭐ ✅ ❌ ⚠️ 💡 📌 📎 📅 📧 📞 🏠 🚗 ✈️ 🎉 🎂 🎁 ☕ 🍕 🍎 🌍 ☀️ 🌙 ⏰ 💰 📈 📉 🔒 🔑 🛒 🏷️ 📦 🖨️ 💻 📱'.split(' ');
+const eb=document.getElementById('emoBody');EMO.forEach(e=>{const b=document.createElement('button');b.textContent=e;b.onclick=()=>{document.getElementById('dlg-emoji').close();insertHTML(e);};eb.appendChild(b);});
+cmds.emoji=()=>{saveSel();openDlg('dlg-emoji');};
+/* images */
+const imgbar=document.getElementById('imgbar');let selImg=null;
+page.addEventListener('click',e=>{page.querySelectorAll('img.sel').forEach(i=>i.classList.remove('sel'));if(e.target.tagName==='IMG'){selImg=e.target;selImg.classList.add('sel');const r=selImg.getBoundingClientRect(),c=document.getElementById('canvas').getBoundingClientRect();imgbar.style.left=(r.left-c.left+document.getElementById('canvas').scrollLeft)+'px';imgbar.style.top=(r.top-c.top+document.getElementById('canvas').scrollTop-40)+'px';imgbar.classList.add('show');}else{imgbar.classList.remove('show');selImg=null;}
+  if(e.target.tagName==='A'&&(e.ctrlKey||e.metaKey)){window.open(e.target.href,'_blank');}});
+imgbar.addEventListener('click',e=>{const a=e.target.dataset.img;if(!a||!selImg)return;const i=selImg;i.style.float='';i.style.display='';i.style.margin='';
+  if(/^\d+$/.test(a))i.style.width=a+'%';if(a==='left'){i.style.display='block';i.style.margin='0 auto 0 0';}if(a==='center'){i.style.display='block';i.style.margin='0 auto';}if(a==='right'){i.style.display='block';i.style.margin='0 0 0 auto';}
+  if(a==='wrapL'){i.style.float='left';i.style.margin='0 12pt 6pt 0';}if(a==='wrapR'){i.style.float='right';i.style.margin='0 0 6pt 12pt';}
+  if(a==='caption'){const c=prompt('Caption');if(c){const f=document.createElement('p');f.style.textAlign='center';f.style.fontSize='10pt';f.style.color='#6b7280';f.textContent=c;i.after(f);}}
+  if(a==='del'){i.remove();imgbar.classList.remove('show');}scheduleSave();});
+document.getElementById('canvas').addEventListener('scroll',()=>imgbar.classList.remove('show'));
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.altKey&&e.key.toLowerCase()==='m'){e.preventDefault();cmds.comment();}});
+/* image resize by drag handle (corner) */
+page.addEventListener('mousedown',e=>{if(e.target.tagName!=='IMG')return;const i=e.target;const r=i.getBoundingClientRect();if(e.clientX<r.right-16||e.clientY<r.bottom-16)return;e.preventDefault();const sw=i.offsetWidth,sx=e.clientX;const mv=ev=>{i.style.width=Math.max(40,sw+(ev.clientX-sx))+'px';};const up=()=>{document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);scheduleSave();};document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);});
+/* autocorrect: straight quotes → curly, -- → —, (c) → © */
+page.addEventListener('keyup',e=>{if(e.key!==' ')return;const s=getSelection();const n=s.anchorNode;if(!n||n.nodeType!==3)return;const t=n.data.slice(0,s.anchorOffset);const m=t.match(/(--|\(c\)|\(r\)|\(tm\)|->)\s$/);if(!m)return;const rep={'--':'—','(c)':'©','(r)':'®','(tm)':'™','->':'→'}[m[1]];const a=s.anchorOffset-m[0].length;n.data=n.data.slice(0,a)+rep+' '+n.data.slice(s.anchorOffset);s.collapse(n,a+rep.length+1);});
+function cleanHtml(){const c=page.cloneNode(true);c.querySelectorAll('.guide,img.sel').forEach(g=>g.classList?.contains('guide')?g.remove():g.classList.remove('sel'));return c.innerHTML;}
+cmds['cols-1']=()=>{cur.cols=1;page.style.columnCount='';save();};cmds['cols-2']=()=>{cur.cols=2;page.style.columnCount='2';page.style.columnGap='28px';save();};
+const _al=afterLoad;afterLoad=function(){_al();page.style.columnCount=cur.cols===2?'2':'';};
+cmds['export-html']=()=>download(cur.name+'.html',`<!DOCTYPE html><html dir="${page.dir}"><head><meta charset="utf-8"><title>${esc(cur.name)}</title><style>body{font-family:Georgia,serif;max-width:800px;margin:40px auto;line-height:1.5}table{border-collapse:collapse}td,th{border:1px solid #999;padding:4px 6px}img{max-width:100%}.cmt{background:#fff1a8}.footnotes{border-top:1px solid #999;font-size:.8em}</style></head><body>${cur.hdr?`<header style="color:#777;font-size:.8em">${cur.hdr}</header>`:''}${cleanHtml()}${cur.ftr?`<footer style="color:#777;font-size:.8em">${cur.ftr}</footer>`:''}</body></html>`,'text/html');
+afterLoad();
 </script>
 </body>
 </html>

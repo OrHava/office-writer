@@ -9,6 +9,11 @@ A Word-style document editor that runs entirely in the browser — Windows, Linu
 - Paragraph styles (headings, quote, code), alignment, line spacing, lists, indent
 - Tables (insert grid, add/delete rows & columns), images (upload or drag-drop), links, horizontal lines, page breaks, special characters
 - Find & replace, word count, zoom, dark mode, RTL/LTR (Hebrew-friendly), focus mode
+- Page setup (A4/Letter/Legal, orientation, margins), page-break guides, header & footer
+- Comments with sidebar, document outline, version history with restore
+- Templates (letter, resume, meeting notes, report, memo), table of contents, footnotes, emoji, checkboxes
+- Change case, bullet/number styles, two columns, drop cap, paragraph & letter spacing, per-paragraph RTL
+- Image toolbar (size, align, wrap, caption) and drag-to-resize; autocorrect for -- (c) (r) (tm) ->
 - Multiple documents, autosaved in the browser (localStorage)
 - Open `.docx`, `.html`, `.md`, `.txt`
 - Download as `.docx` (native OOXML, no server), `.html`, `.md`, `.txt`, or print to PDF
