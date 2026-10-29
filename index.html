@@ -145,6 +145,16 @@ dialog .actions .primary{background:var(--accent);color:var(--accent-ink);paddin
 .page img.sel{outline:3px solid var(--accent)}
 .page .dropcap::first-letter{float:left;font-size:3.2em;line-height:.85;padding:4pt 6pt 0 0;font-weight:600}
 .page input[type=checkbox]{margin-right:6px}
+.page.linenums{counter-reset:ln}.page.linenums > p,.page.linenums > h1,.page.linenums > h2,.page.linenums > h3,.page.linenums > li{position:relative}.page.linenums > p::before,.page.linenums > h1::before,.page.linenums > h2::before,.page.linenums > h3::before{counter-increment:ln;content:counter(ln);position:absolute;left:-40px;color:#9aa1ad;font:10px var(--ui);top:4px}
+.page .wm{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;font-size:80px;font-weight:700;color:rgba(127,127,127,.12);transform:rotate(-30deg);z-index:0;user-select:none}
+.page .guide{border-top:0;height:28px;background:var(--bg);margin:0 -96px;left:0;right:0;box-shadow:inset 0 6px 8px -6px rgba(0,0,0,.25),inset 0 -6px 8px -6px rgba(0,0,0,.25)}
+.page .guide::after{top:6px;right:16px}
+.cover{text-align:center;padding-top:200pt;page-break-after:always}
+ins.diff{background:#d4f5dd;text-decoration:none}del.diff{background:#f9d4d4}
+.goal{font-size:12px;color:var(--muted)}
+#aiQuick button{border:1px solid var(--line);font-size:12px;padding:5px 9px}
+.page td.tsel{outline:2px solid var(--accent);outline-offset:-2px}
+.page .cmt.ai{background:#dfe9ff}
 .imgbar{position:absolute;display:none;background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.14);padding:4px;gap:2px;z-index:30}
 .imgbar.show{display:flex}
 .imgbar button{font-size:12px;padding:4px 8px}
@@ -233,6 +243,25 @@ aside .pane{display:none;overflow:auto;flex:1}aside .pane.on{display:block}
     <li><button data-cmd="para-dir">Paragraph direction RTL/LTR</button></li>
     <li><button data-cmd="spacing">Paragraph spacing…</button></li>
     <li><button data-cmd="letterspacing">Letter spacing…</button></li>
+  </ul></div>
+  <div class="menu" id="m-tools"><button>Tools</button><ul>
+    <li><button data-cmd="ai">AI assistant <kbd>Ctrl+J</kbd></button></li>
+    <li><button data-cmd="ai-settings">AI settings…</button></li>
+    <li class="sep"></li>
+    <li><button data-cmd="voice">Voice typing</button></li>
+    <li><button data-cmd="speak">Read aloud / stop</button></li>
+    <li><button data-cmd="define">Look up selected word</button></li>
+    <li class="sep"></li>
+    <li><button data-cmd="compare">Compare with a previous version…</button></li>
+    <li><button data-cmd="share">Share as link (no server)</button></li>
+    <li><button data-cmd="lock">Export encrypted copy (password)…</button></li>
+    <li><button data-cmd="unlock">Open encrypted copy…</button></li>
+    <li><button data-cmd="wordgoal">Set word-count goal…</button></li>
+    <li><button data-cmd="watermark">Watermark…</button></li>
+    <li><button data-cmd="linenums">Toggle line numbers</button></li>
+    <li><button data-cmd="coverpage">Insert cover page</button></li>
+    <li><button data-cmd="tablestyle">Table cell style…</button></li>
+    <li><button data-cmd="tablemerge">Merge selected table cells</button></li>
   </ul></div>
   <div class="menu" id="m-view"><button>View</button><ul>
     <li><button data-cmd="sidebar">Toggle documents panel</button></li>
@@ -341,6 +370,11 @@ aside .pane{display:none;overflow:auto;flex:1}aside .pane.on{display:block}
 <dialog id="dlg-emoji"><h3>Emoji</h3><div class="emo" id="emoBody"></div><div class="actions"><button data-close>Close</button></div></dialog>
 <dialog id="dlg-comment"><h3>Add comment</h3><input id="cm-text" placeholder="Write a comment"><div class="actions"><button data-close>Cancel</button><button class="primary" id="cm-ok">Comment</button></div></dialog>
 <dialog id="dlg-spacing"><h3>Paragraph spacing</h3><label>Space before (pt)</label><input type="number" id="sp-b" value="0"><label>Space after (pt)</label><input type="number" id="sp-a" value="10"><label>First-line indent (pt)</label><input type="number" id="sp-i" value="0"><div class="actions"><button data-close>Cancel</button><button class="primary" id="sp-ok">Apply</button></div></dialog>
+<dialog id="dlg-ai" style="max-width:640px"><h3>AI assistant</h3><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px" id="aiQuick"><button data-q="Fix spelling and grammar, keep the meaning and formatting.">Fix grammar</button><button data-q="Make this more concise.">Shorten</button><button data-q="Expand this with more detail and examples.">Expand</button><button data-q="Rewrite in a professional tone.">Professional</button><button data-q="Rewrite in a friendly, casual tone.">Casual</button><button data-q="Translate to English.">→ English</button><button data-q="Translate to Hebrew.">→ עברית</button><button data-q="Summarize in 3 bullet points.">Summarize</button><button data-q="Continue writing from where this ends, matching the style.">Continue</button><button data-q="Turn this into a table.">Make table</button></div><textarea id="aiPrompt" rows="3" style="width:100%" placeholder="Ask anything: 'write a cover letter for a RFID project manager role', 'make this paragraph punchier', 'create an outline about…'"></textarea><div style="font-size:12px;color:var(--muted);margin:6px 0" id="aiScope"></div><div id="aiOut" style="max-height:300px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:10px;display:none;line-height:1.5"></div><div class="actions"><button data-close>Close</button><button id="aiRun" class="primary">Run</button><button id="aiReplace" style="display:none">Replace selection</button><button id="aiInsert" style="display:none">Insert at cursor</button></div></dialog>
+<dialog id="dlg-aiset"></dialog>
+<dialog id="dlg-compare" style="max-width:760px"><h3>Compare versions</h3><p>Green = added, red = removed, relative to the chosen version.</p><select id="cmpSel" style="margin-bottom:10px"></select><div id="cmpOut" style="max-height:60vh;overflow:auto;line-height:1.6;border:1px solid var(--line);border-radius:8px;padding:12px"></div><div class="actions"><button data-close>Close</button></div></dialog>
+<dialog id="dlg-tcell"><h3>Table cell style</h3><label>Background</label><input type="color" id="tc-bg" value="#eef2fb"><label>Text color</label><input type="color" id="tc-fg" value="#1c1f26"><label>Vertical align</label><select id="tc-va"><option>top</option><option>middle</option><option>bottom</option></select><label>Column width (px, 0 = auto)</label><input type="number" id="tc-w" value="0"><label>Border</label><select id="tc-bd"><option value="">Default</option><option value="none">None</option><option value="2px solid #1c1f26">Thick</option><option value="1px dashed #9aa1ad">Dashed</option></select><div class="actions"><button data-close>Cancel</button><button class="primary" id="tc-ok">Apply to selected cells</button></div></dialog>
+<input type="file" id="encIn" accept=".enc.json,.json" hidden>
 <input type="file" id="fileIn" accept=".docx,.html,.htm,.md,.txt" hidden>
 <input type="file" id="imgIn" accept="image/*" hidden>
 <div id="scrim"></div><div class="toast" id="toast"></div>
@@ -721,6 +755,73 @@ document.getElementById('scrim').onclick=()=>cmds.sidebar();
 document.getElementById('doclist').addEventListener('click',()=>{if(matchMedia('(max-width:900px)').matches&&!document.getElementById('side').classList.contains('hidden'))cmds.sidebar();});
 // touch: image resize with pointer events, long-press selects image
 page.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'||e.target.tagName!=='IMG')return;const i=e.target;const r=i.getBoundingClientRect();if(e.clientX<r.right-28||e.clientY<r.bottom-28)return;e.preventDefault();const sw=i.offsetWidth,sx=e.clientX;const mv=ev=>{i.style.width=Math.max(40,sw+(ev.clientX-sx))+'px';};const up=()=>{document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);scheduleSave();};document.addEventListener('pointermove',mv);document.addEventListener('pointerup',up);});
+/* ======== v3: AI, voice, tools ======== */
+/* ===== Shared AI helper (Anthropic / OpenAI-compatible), key stays in localStorage ===== */
+const AI={
+  cfg(){try{return JSON.parse(localStorage.getItem('office.ai')||'{}');}catch{return {};}},
+  save(c){localStorage.setItem('office.ai',JSON.stringify(c));},
+  ready(){const c=AI.cfg();return !!c.key;},
+  async ask(system,user,{json=false,max=2000}={}){
+    const c=AI.cfg();if(!c.key)throw new Error('No API key — open AI settings');
+    if(c.provider==='openai'){
+      const r=await fetch((c.base||'https://api.openai.com/v1')+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+c.key},body:JSON.stringify({model:c.model||'gpt-4o-mini',max_tokens:max,messages:[{role:'system',content:system},{role:'user',content:user}],...(json?{response_format:{type:'json_object'}}:{})})});
+      const j=await r.json();if(!r.ok)throw new Error(j.error?.message||r.statusText);return j.choices[0].message.content.trim();
+    }
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':c.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:c.model||'claude-sonnet-4-5',max_tokens:max,system:system+(json?'\nRespond with JSON only, no prose, no code fences.':''),messages:[{role:'user',content:user}]})});
+    const j=await r.json();if(!r.ok)throw new Error(j.error?.message||r.statusText);return j.content.map(x=>x.text||'').join('').trim();
+  },
+  parseJSON(t){return JSON.parse(t.replace(/^```(json)?/m,'').replace(/```$/m,'').trim());},
+  settingsHTML(){const c=AI.cfg();return `<h3>AI assistant settings</h3><p>Bring your own key. It is stored only in this browser and sent directly to the provider — never to any other server.</p>
+    <label>Provider</label><select id="ai-prov"><option value="anthropic" ${c.provider!=='openai'?'selected':''}>Anthropic (Claude)</option><option value="openai" ${c.provider==='openai'?'selected':''}>OpenAI / compatible (OpenAI, Groq, Ollama, OpenRouter…)</option></select>
+    <label>API key</label><input id="ai-key" type="password" value="${c.key||''}" placeholder="sk-…">
+    <label>Model (optional)</label><input id="ai-model" value="${c.model||''}" placeholder="claude-sonnet-4-5 / gpt-4o-mini">
+    <label>Base URL (OpenAI-compatible only, optional)</label><input id="ai-base" value="${c.base||''}" placeholder="https://api.openai.com/v1">
+    <div class="actions"><button data-close>Cancel</button><button class="primary" id="ai-save">Save</button></div>`;},
+  bindSettings(dlg){dlg.querySelector('#ai-save').onclick=()=>{AI.save({provider:dlg.querySelector('#ai-prov').value,key:dlg.querySelector('#ai-key').value.trim(),model:dlg.querySelector('#ai-model').value.trim(),base:dlg.querySelector('#ai-base').value.trim()});dlg.close();};},
+};
+
+cmds['ai-settings']=()=>{const d=document.getElementById('dlg-aiset');d.innerHTML=AI.settingsHTML();AI.bindSettings(d);d.showModal();};
+let aiLast='';
+cmds.ai=()=>{if(!AI.ready()){cmds['ai-settings']();return;}saveSel();const sel=getSelection().toString();document.getElementById('aiScope').textContent=sel?`Working on your selection (${sel.split(/\s+/).length} words).`:'No selection — the whole document is the context; results are inserted at the cursor.';document.getElementById('aiOut').style.display='none';document.getElementById('aiReplace').style.display=document.getElementById('aiInsert').style.display='none';openDlg('dlg-ai');document.getElementById('aiPrompt').focus();};
+document.getElementById('aiQuick').onclick=e=>{const b=e.target.closest('[data-q]');if(b){document.getElementById('aiPrompt').value=b.dataset.q;document.getElementById('aiRun').click();}};
+document.getElementById('aiRun').onclick=async()=>{const q=document.getElementById('aiPrompt').value.trim();if(!q)return;const sel=savedRange?savedRange.toString():'';const out=document.getElementById('aiOut');out.style.display='block';out.innerHTML='<span class="spin" style="display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:sp .8s linear infinite"></span> Thinking…';
+  try{const sys='You are a writing assistant inside a word processor. Return only the resulting text as simple HTML (p, h1-h3, ul/ol/li, b, i, table) with no explanations, no markdown, no code fences. Preserve the language of the input unless asked to translate.';const ctx=sel?`SELECTED TEXT:\n${sel}`:`DOCUMENT:\n${page.innerText.slice(0,12000)}`;aiLast=await AI.ask(sys,`${ctx}\n\nINSTRUCTION: ${q}`,{max:3000});out.innerHTML=aiLast;document.getElementById('aiReplace').style.display=sel?'':'none';document.getElementById('aiInsert').style.display='';}catch(e){out.textContent='Error: '+e.message;}};
+document.getElementById('aiReplace').onclick=()=>{document.getElementById('dlg-ai').close();restoreSel();document.execCommand('insertHTML',false,aiLast);scheduleSave();};
+document.getElementById('aiInsert').onclick=()=>{document.getElementById('dlg-ai').close();restoreSel();getSelection().collapseToEnd();document.execCommand('insertHTML',false,aiLast);scheduleSave();};
+/* voice typing */
+let rec=null;cmds.voice=()=>{const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast('Voice typing needs Chrome, Edge or Safari');return;}if(rec){rec.stop();rec=null;toast('Voice typing stopped');return;}rec=new SR();rec.lang=page.dir==='rtl'?'he-IL':navigator.language;rec.continuous=true;rec.interimResults=false;rec.onresult=e=>{let t='';for(let i=e.resultIndex;i<e.results.length;i++)if(e.results[i].isFinal)t+=e.results[i][0].transcript+' ';if(t){page.focus();document.execCommand('insertText',false,t);scheduleSave();}};rec.onend=()=>{if(rec)rec.start();};rec.start();toast('Listening… choose Voice typing again to stop');};
+cmds.speak=()=>{if(speechSynthesis.speaking){speechSynthesis.cancel();return;}const t=getSelection().toString()||page.innerText;const u=new SpeechSynthesisUtterance(t);u.lang=page.dir==='rtl'?'he-IL':navigator.language;speechSynthesis.speak(u);toast('Reading aloud… choose again to stop');};
+cmds.define=async()=>{const w=getSelection().toString().trim().split(/\s+/)[0];if(!w){toast('Select a word first');return;}try{const r=await fetch('https://api.dictionaryapi.dev/api/v2/entries/en/'+encodeURIComponent(w.toLowerCase()));const j=await r.json();const m=j[0]?.meanings?.[0];if(!m)throw 0;alert(`${w} (${m.partOfSpeech})\n\n`+m.definitions.slice(0,3).map((d,i)=>`${i+1}. ${d.definition}`).join('\n'));}catch{toast('No definition found (English only)');}};
+/* markdown-style shortcuts while typing */
+page.addEventListener('keydown',e=>{if(e.key!==' ')return;const s=getSelection();const n=s.anchorNode;if(!n||n.nodeType!==3)return;const b=curBlock();if(!b||b.tagName!=='P'||n.parentNode!==b&&n.parentNode.parentNode!==b)return;const t=n.data.slice(0,s.anchorOffset);const m=t.match(/^(#{1,3}|[-*]|1\.|>|\[\])$/);if(!m)return;e.preventDefault();n.data=n.data.slice(s.anchorOffset);const k=m[1];if(k[0]==='#')document.execCommand('formatBlock',false,'h'+k.length);else if(k==='-'||k==='*')document.execCommand('insertUnorderedList');else if(k==='1.')document.execCommand('insertOrderedList');else if(k==='>')document.execCommand('formatBlock',false,'blockquote');else if(k==='[]')document.execCommand('insertHTML',false,'<input type="checkbox"> ');scheduleSave();});
+/* compare versions */
+function wordDiff(a,b){const A=a.split(/(\s+)/),B=b.split(/(\s+)/);const n=A.length,m=B.length;const dp=Array.from({length:n+1},()=>new Uint16Array(m+1));for(let i=n-1;i>=0;i--)for(let j=m-1;j>=0;j--)dp[i][j]=A[i]===B[j]?dp[i+1][j+1]+1:Math.max(dp[i+1][j],dp[i][j+1]);let i=0,j=0,o='';while(i<n&&j<m){if(A[i]===B[j]){o+=esc(A[i]);i++;j++;}else if(dp[i+1][j]>=dp[i][j+1]){o+=`<del class="diff">${esc(A[i])}</del>`;i++;}else{o+=`<ins class="diff">${esc(B[j])}</ins>`;j++;}}while(i<n)o+=`<del class="diff">${esc(A[i++])}</del>`;while(j<m)o+=`<ins class="diff">${esc(B[j++])}</ins>`;return o.replace(/\n/g,'<br>');}
+cmds.compare=()=>{if(!cur.versions.length){toast('No earlier versions yet');return;}const sel=document.getElementById('cmpSel');sel.innerHTML=[...cur.versions].reverse().map((v,i)=>`<option value="${cur.versions.length-1-i}">${new Date(v.t).toLocaleString()} · ${v.words} words</option>`).join('');const run=()=>{const v=cur.versions[+sel.value];const d=document.createElement('div');d.innerHTML=v.html;const cur2=document.createElement('div');cur2.innerHTML=cleanHtml();document.getElementById('cmpOut').innerHTML=wordDiff(d.innerText,cur2.innerText);};sel.onchange=run;run();openDlg('dlg-compare');};
+/* share link + encryption */
+async function gz(str,mode){const cs=new (mode==='c'?CompressionStream:DecompressionStream)('gzip');const w=cs.writable.getWriter();w.write(mode==='c'?new TextEncoder().encode(str):Uint8Array.from(atob(str.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0)));w.close();const buf=await new Response(cs.readable).arrayBuffer();return mode==='c'?btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''):new TextDecoder().decode(buf);}
+cmds.share=async()=>{const data=await gz(JSON.stringify({n:cur.name,h:cleanHtml(),d:page.dir}),'c');const url=location.origin+location.pathname+'#doc='+data;if(url.length>30000){toast('Document too large for a link (images?) — use Download instead');return;}try{await navigator.clipboard.writeText(url);toast('Link copied — anyone who opens it gets a copy of this document');}catch{prompt('Copy this link',url);}};
+(async()=>{const m=location.hash.match(/^#doc=(.+)$/);if(!m)return;try{const d=JSON.parse(await gz(m[1],'d'));history.replaceState(null,'',location.pathname);save();newDoc(d.h,d.name||d.n||'Shared document');page.dir=d.d||'ltr';toast('Opened shared document');}catch{toast('Could not open shared link');}})();
+async function key(pw,salt){const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:200000,hash:'SHA-256'},k,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);}
+cmds.lock=async()=>{const pw=prompt('Password for the encrypted file (there is no recovery if you forget it):');if(!pw)return;const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));const k=await key(pw,salt);const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},k,new TextEncoder().encode(JSON.stringify({n:cur.name,h:cleanHtml(),d:page.dir})));const b64=a=>btoa(String.fromCharCode(...new Uint8Array(a)));download(cur.name+'.enc.json',JSON.stringify({writer:1,salt:b64(salt),iv:b64(iv),data:b64(ct)}),'application/json');toast('Encrypted copy downloaded (AES-256)');};
+cmds.unlock=()=>document.getElementById('encIn').click();
+document.getElementById('encIn').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const j=JSON.parse(await f.text());const pw=prompt('Password:');if(!pw)return;const u8=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));const k=await key(pw,u8(j.salt));const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:u8(j.iv)},k,u8(j.data));const d=JSON.parse(new TextDecoder().decode(pt));save();newDoc(d.h,d.n);page.dir=d.d||'ltr';toast('Decrypted');}catch{toast('Wrong password or invalid file');}};
+/* word goal, watermark, line numbers, cover page */
+cmds.wordgoal=()=>{const g=prompt('Word-count goal (0 to clear):',cur.goal||'500');if(g==null)return;cur.goal=+g||0;save();countWords();};
+const _cw=countWords;countWords=function(){_cw();if(cur?.goal){const w=page.innerText.trim()?page.innerText.trim().split(/\s+/).length:0;document.getElementById('words').textContent+=` · ${Math.min(100,Math.round(w/cur.goal*100))}% of ${cur.goal}`;}};
+cmds.watermark=()=>{const t=prompt('Watermark text (empty to remove):',cur.wm||'DRAFT');if(t==null)return;cur.wm=t;save();applyWm();};
+function applyWm(){page.querySelector('.wm')?.remove();if(cur.wm){const d=document.createElement('div');d.className='wm';d.contentEditable='false';d.textContent=cur.wm;page.prepend(d);}}
+cmds.linenums=()=>{cur.ln=!cur.ln;page.classList.toggle('linenums',cur.ln);save();};
+cmds.coverpage=()=>{page.insertAdjacentHTML('afterbegin',`<div class="cover"><h1 style="font-size:36pt">${esc(cur.name)}</h1><p style="font-size:14pt;color:#6b7280">Subtitle or author</p><p style="font-size:12pt;color:#6b7280">${new Date().toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'})}</p></div>`);scheduleSave();drawGuides();};
+const _al2=afterLoad;afterLoad=function(){_al2();applyWm();page.classList.toggle('linenums',!!cur.ln);};
+const _clean=cleanHtml;cleanHtml=function(){const c=page.cloneNode(true);c.querySelectorAll('.guide,.wm,.tsel').forEach(g=>g.classList.contains('tsel')?g.classList.remove('tsel'):g.remove());c.querySelectorAll('img.sel').forEach(i=>i.classList.remove('sel'));return c.innerHTML;};
+/* table cell selection (drag across cells) + style + merge */
+let tStart=null;page.addEventListener('pointerdown',e=>{const td=e.target.closest('td,th');page.querySelectorAll('.tsel').forEach(x=>x.classList.remove('tsel'));tStart=td||null;});
+page.addEventListener('pointerover',e=>{if(!tStart||!e.buttons)return;const td=e.target.closest('td,th');if(!td||td===tStart||td.closest('table')!==tStart.closest('table'))return;const tbl=tStart.closest('table');const r1=tStart.parentNode.rowIndex,c1=tStart.cellIndex,r2=td.parentNode.rowIndex,c2=td.cellIndex;tbl.querySelectorAll('td,th').forEach(x=>{const r=x.parentNode.rowIndex,c=x.cellIndex;x.classList.toggle('tsel',r>=Math.min(r1,r2)&&r<=Math.max(r1,r2)&&c>=Math.min(c1,c2)&&c<=Math.max(c1,c2));});});
+const tcells=()=>{const s=[...page.querySelectorAll('.tsel')];if(s.length)return s;const c=closestIn('TD')||closestIn('TH');return c?[c]:[];};
+cmds.tablestyle=()=>{if(!tcells().length){toast('Click inside a table first');return;}openDlg('dlg-tcell');};
+document.getElementById('tc-ok').onclick=()=>{document.getElementById('dlg-tcell').close();const bg=document.getElementById('tc-bg').value,fg=document.getElementById('tc-fg').value,va=document.getElementById('tc-va').value,w=+document.getElementById('tc-w').value,bd=document.getElementById('tc-bd').value;tcells().forEach(c=>{c.style.background=bg;c.style.color=fg;c.style.verticalAlign=va;if(w)c.style.width=w+'px';if(bd)c.style.border=bd;});scheduleSave();};
+cmds.tablemerge=()=>{const cs=tcells();if(cs.length<2){toast('Drag across the cells to merge first');return;}const rows=[...new Set(cs.map(c=>c.parentNode.rowIndex))],cols=[...new Set(cs.map(c=>c.cellIndex))];const first=cs[0];first.innerHTML=cs.map(c=>c.innerHTML).filter(h=>h&&h!=='<br>').join(' ')||'<br>';first.rowSpan=rows.length;first.colSpan=cols.length;cs.slice(1).forEach(c=>c.remove());first.classList.remove('tsel');scheduleSave();};
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='j'){e.preventDefault();cmds.ai();}});
 afterLoad();
 </script>
 </body>
