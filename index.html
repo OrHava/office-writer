@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
 <title>Writer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -100,7 +100,25 @@ dialog .actions .primary{background:var(--accent);color:var(--accent-ink);paddin
 .tablegrid span{width:18px;height:18px;border:1px solid var(--line);border-radius:3px;cursor:pointer}
 .tablegrid span.hi{background:var(--accent);border-color:var(--accent)}
 .tg-label{text-align:center;color:var(--muted);font-size:12px;padding-bottom:6px}
-@media (max-width:900px){aside{position:absolute;z-index:20;height:calc(100% - 0px)}.canvas{padding:12px 6px}.page{padding:48px 36px;width:100%;min-height:60vh}}
+@media (max-width:900px){
+  body{padding-top:env(safe-area-inset-top)}
+  header{padding:6px 8px;gap:6px;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}header::-webkit-scrollbar{display:none}
+  header .brand span{display:none}#title{min-width:120px;width:140px;flex:none}.status{display:none}
+  .menu > button{padding:6px 8px;white-space:nowrap}.menu ul{position:fixed;left:8px;right:8px;top:auto;width:auto;max-height:70vh;overflow:auto;font-size:15px}
+  .toolbar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:4px 6px;-webkit-overflow-scrolling:touch}.toolbar::-webkit-scrollbar{display:none}.toolbar .g{flex:none}
+  .toolbar button{min-width:36px;height:36px;font-size:16px}.toolbar select{height:36px;font-size:14px}
+  aside{position:fixed;left:0;top:0;bottom:0;z-index:40;width:min(300px,85vw);box-shadow:0 0 40px rgba(0,0,0,.3);transition:transform .2s;transform:translateX(-100%);margin:0!important}aside:not(.hidden){transform:none}
+  #scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:39;display:none}#scrim.show{display:block}
+  .canvas{padding:8px 0;display:block}
+  .page{width:100%!important;min-height:calc(100vh - 160px)!important;padding:22px 16px!important;box-shadow:none;font-size:15px;transform:none!important;margin:0!important}
+  .hf{left:16px!important;right:16px!important}#hdr{top:4px!important}#ftr{bottom:4px!important}
+  .guide{display:none}
+  .find{position:sticky;top:0;z-index:5}.find input{width:40%}
+  dialog{width:94vw;max-width:94vw;padding:16px}dialog input,dialog select{font-size:16px}
+  input,select{font-size:16px}
+  .menubtn{display:inline-flex!important}
+}
+.menubtn{display:none;font-size:20px;padding:4px 8px}
 @media print{
   body *{visibility:hidden}
   .canvas,.canvas *{visibility:visible}
@@ -153,7 +171,7 @@ aside .pane{display:none;overflow:auto;flex:1}aside .pane.on{display:block}
 </head>
 <body>
 <header>
-  <div class="brand"><i></i>Writer</div>
+  <button class="menubtn" data-cmd="sidebar" title="Documents">☰</button><div class="brand"><i></i><span>Writer</span></div>
   <input id="title" placeholder="Untitled document" spellcheck="false">
   <div class="menu" id="m-file"><button>File</button><ul>
     <li><button data-cmd="new">New document <kbd>Ctrl+Alt+N</kbd></button></li>
@@ -325,7 +343,7 @@ aside .pane{display:none;overflow:auto;flex:1}aside .pane.on{display:block}
 <dialog id="dlg-spacing"><h3>Paragraph spacing</h3><label>Space before (pt)</label><input type="number" id="sp-b" value="0"><label>Space after (pt)</label><input type="number" id="sp-a" value="10"><label>First-line indent (pt)</label><input type="number" id="sp-i" value="0"><div class="actions"><button data-close>Cancel</button><button class="primary" id="sp-ok">Apply</button></div></dialog>
 <input type="file" id="fileIn" accept=".docx,.html,.htm,.md,.txt" hidden>
 <input type="file" id="imgIn" accept="image/*" hidden>
-<div class="toast" id="toast"></div>
+<div id="scrim"></div><div class="toast" id="toast"></div>
 
 <script>
 /* ---------- storage ---------- */
@@ -387,7 +405,7 @@ const cmds={
   'f-close':()=>{clearMarks();document.getElementById('find').classList.remove('show');},
   'f-next':()=>stepMatch(1),'f-prev':()=>stepMatch(-1),'f-rep':()=>replaceOne(),'f-repall':()=>replaceAll(),
   'paste-plain':()=>navigator.clipboard.readText().then(t=>insertHTML(esc(t).replace(/\n/g,'<br>'))),
-  sidebar:()=>document.getElementById('side').classList.toggle('hidden'),
+  sidebar:()=>{const h=document.getElementById('side').classList.toggle('hidden');document.getElementById('scrim').classList.toggle('show',!h&&matchMedia('(max-width:900px)').matches);},
   theme:()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'':'dark';localStorage.setItem('writer.theme',r.dataset.theme);},
   spell:()=>{page.spellcheck=!page.spellcheck;toast('Spellcheck '+(page.spellcheck?'on':'off'));},
   dir:()=>{page.dir=page.dir==='rtl'?'ltr':'rtl';document.getElementById('dirbtn').classList.toggle('on',page.dir==='rtl');scheduleSave();},
@@ -698,6 +716,11 @@ function cleanHtml(){const c=page.cloneNode(true);c.querySelectorAll('.guide,img
 cmds['cols-1']=()=>{cur.cols=1;page.style.columnCount='';save();};cmds['cols-2']=()=>{cur.cols=2;page.style.columnCount='2';page.style.columnGap='28px';save();};
 const _al=afterLoad;afterLoad=function(){_al();page.style.columnCount=cur.cols===2?'2':'';};
 cmds['export-html']=()=>download(cur.name+'.html',`<!DOCTYPE html><html dir="${page.dir}"><head><meta charset="utf-8"><title>${esc(cur.name)}</title><style>body{font-family:Georgia,serif;max-width:800px;margin:40px auto;line-height:1.5}table{border-collapse:collapse}td,th{border:1px solid #999;padding:4px 6px}img{max-width:100%}.cmt{background:#fff1a8}.footnotes{border-top:1px solid #999;font-size:.8em}</style></head><body>${cur.hdr?`<header style="color:#777;font-size:.8em">${cur.hdr}</header>`:''}${cleanHtml()}${cur.ftr?`<footer style="color:#777;font-size:.8em">${cur.ftr}</footer>`:''}</body></html>`,'text/html');
+document.getElementById('scrim').onclick=()=>cmds.sidebar();
+// close drawer after picking a doc on mobile
+document.getElementById('doclist').addEventListener('click',()=>{if(matchMedia('(max-width:900px)').matches&&!document.getElementById('side').classList.contains('hidden'))cmds.sidebar();});
+// touch: image resize with pointer events, long-press selects image
+page.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'||e.target.tagName!=='IMG')return;const i=e.target;const r=i.getBoundingClientRect();if(e.clientX<r.right-28||e.clientY<r.bottom-28)return;e.preventDefault();const sw=i.offsetWidth,sx=e.clientX;const mv=ev=>{i.style.width=Math.max(40,sw+(ev.clientX-sx))+'px';};const up=()=>{document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);scheduleSave();};document.addEventListener('pointermove',mv);document.addEventListener('pointerup',up);});
 afterLoad();
 </script>
 </body>
